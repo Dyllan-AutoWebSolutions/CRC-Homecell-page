@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRC Homecell</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&family=Geist:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #010027;
+        --red: #d80c37;
+        --purple: #a1159c;
+        --orange: #ff8000;
+        --yellow: #f5d01b;
+        --blue: #5cb2ed;
+        --white: #ffffff;
+        --font-primary: "Montserrat", sans-serif;
+        --font-body: "Geist", "Montserrat", sans-serif;
+        --radius-lg: 20px;
+        --radius-pill: 999px;
+        --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: var(--font-body);
+        background: var(--navy);
+        color: var(--white);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ── WAVE BACKGROUND ── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 50% -10%,
+            rgba(216, 12, 55, 0.18) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 60% 40% at 80% 80%,
+            rgba(161, 21, 156, 0.12) 0%,
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse 50% 50% at 10% 90%,
+            rgba(92, 178, 237, 0.08) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── WAVE LINES (decorative strip) ── */
+      .wave-strip {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 120px;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+        opacity: 0.18;
+      }
+      .wave-strip svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ── NAV ── */
+      .nav {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 32px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-primary);
+        font-weight: 900;
+        font-size: 0.95rem;
+        letter-spacing: 0.06em;
+      }
+      .nav-badge {
+        width: 34px;
+        height: 34px;
+        background: var(--red);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+      }
+      .nav-label {
+        font-family: var(--font-primary);
+        font-weight: 700;
+        font-size: 0.65rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 5px 14px;
+        border-radius: var(--radius-pill);
+      }
+
+      /* ── HERO ── */
+      .hero {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 60px 24px 48px;
+      }
+      .hero-eyebrow {
+        font-family: var(--font-primary);
+        font-weight: 700;
+        font-size: 0.65rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 14px;
+      }
+      .hero-title {
+        font-family: var(--font-primary);
+        font-weight: 900;
+        font-size: clamp(2.2rem, 6vw, 4rem);
+        line-height: 1;
+        letter-spacing: -0.02em;
+        margin-bottom: 16px;
+      }
+      .hero-title span {
+        display: block;
+        background: linear-gradient(90deg, var(--red), var(--purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hero-sub {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.45);
+        font-family: var(--font-primary);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      /* ── DIVIDER ── */
+      .wave-divider {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 24px;
+        margin: 0 auto 48px;
+        max-width: 600px;
+        position: relative;
+        z-index: 1;
+      }
+      .wave-divider-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(216, 12, 55, 0.4),
+          transparent
+        );
+      }
+      .wave-divider-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--red);
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      /* ── CARDS GRID ── */
+      .cards {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 24px 80px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+      }
+
+      /* ── CARD ── */
+      .card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition:
+          transform var(--transition),
+          border-color var(--transition),
+          box-shadow var(--transition);
+        opacity: 0;
+        transform: translateY(24px);
+        animation: fadeUp 0.5s forwards;
+      }
+      .card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+      }
+
+      /* ── CARD ACCENT TOP BORDER ── */
+      .card-pdf {
+        border-top: 3px solid var(--red);
+      }
+      .card-video {
+        border-top: 3px solid var(--purple);
+      }
+      .card-spotify {
+        border-top: 3px solid #1db954;
+      }
+
+      /* ── CARD ICON AREA ── */
+      .card-icon-area {
+        padding: 32px 28px 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .card-icon-pdf {
+        background: rgba(216, 12, 55, 0.15);
+      }
+      .card-icon-video {
+        background: rgba(161, 21, 156, 0.15);
+      }
+      .card-icon-spotify {
+        background: rgba(29, 185, 84, 0.15);
+      }
+
+      .card-icon svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      .card-icon-text {
+        flex: 1;
+      }
+      .card-type {
+        font-family: var(--font-primary);
+        font-weight: 700;
+        font-size: 0.6rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        margin-bottom: 4px;
+      }
+      .card-title {
+        font-family: var(--font-primary);
+        font-weight: 800;
+        font-size: 1.05rem;
+        line-height: 1.25;
+        color: var(--white);
+      }
+
+      /* ── CARD BODY ── */
+      .card-body {
+        padding: 0 28px 28px;
+      }
+      .card-desc {
+        font-size: 0.83rem;
+        color: rgba(255, 255, 255, 0.45);
+        line-height: 1.65;
+        margin-bottom: 24px;
+      }
+
+      /* ── BUTTONS ── */
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--font-primary);
+        font-weight: 700;
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 10px 18px;
+        border-radius: var(--radius-pill);
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all var(--transition);
+        text-decoration: none;
+      }
+      .btn svg {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+      }
+
+      .btn-red {
+        background: var(--red);
+        color: var(--white);
+        border-color: var(--red);
+      }
+      .btn-red:hover {
+        background: transparent;
+        color: var(--red);
+      }
+
+      .btn-purple {
+        background: var(--purple);
+        color: var(--white);
+        border-color: var(--purple);
+      }
+      .btn-purple:hover {
+        background: transparent;
+        color: var(--purple);
+      }
+
+      .btn-spotify {
+        background: #1db954;
+        color: var(--white);
+        border-color: #1db954;
+      }
+      .btn-spotify:hover {
+        background: transparent;
+        color: #1db954;
+      }
+
+      .btn-outline-dim {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        border-color: rgba(255, 255, 255, 0.15);
+      }
+      .btn-outline-dim:hover {
+        border-color: rgba(255, 255, 255, 0.4);
+        color: var(--white);
+      }
+
+      /* ── THEME TAG ── */
+      .theme-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-primary);
+        font-weight: 700;
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-pill);
+        padding: 5px 12px;
+        margin-bottom: 20px;
+      }
+      .theme-tag-dot {
+        width: 5px;
+        height: 5px;
+        background: var(--red);
+        border-radius: 50%;
+      }
+
+      /* ── FOOTER ── */
+      .footer {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 0 24px 40px;
+        font-family: var(--font-primary);
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 600px) {
+        .nav {
+          padding: 16px 20px;
+        }
+        .hero {
+          padding: 44px 20px 36px;
+        }
+        .cards {
+          padding: 0 16px 60px;
+        }
+        .card-icon-area {
+          padding: 24px 20px 16px;
+        }
+        .card-body {
+          padding: 0 20px 22px;
+        }
+        .btn-group {
+          flex-direction: column;
+        }
+        .btn {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- DECORATIVE WAVE LINES -->
+    <div class="wave-strip">
+      <svg
+        viewBox="0 0 1440 120"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0,60 Q120,20 240,60 Q360,100 480,60 Q600,20 720,60 Q840,100 960,60 Q1080,20 1200,60 Q1320,100 1440,60"
+          stroke="#D80C37"
+          stroke-width="1.5"
+          fill="none"
+        />
+        <path
+          d="M0,75 Q120,35 240,75 Q360,115 480,75 Q600,35 720,75 Q840,115 960,75 Q1080,35 1200,75 Q1320,115 1440,75"
+          stroke="#A1159C"
+          stroke-width="1"
+          fill="none"
+        />
+        <path
+          d="M0,90 Q120,50 240,90 Q360,130 480,90 Q600,50 720,90 Q840,130 960,90 Q1080,50 1200,90 Q1320,130 1440,90"
+          stroke="#5CB2ED"
+          stroke-width="0.8"
+          fill="none"
+        />
+      </svg>
+    </div>
+
+    <!-- NAV -->
+    <nav class="nav">
+      <div class="nav-logo">
+        <div class="nav-badge">CRC</div>
+        CRC Worcester
+      </div>
+      <div class="nav-label">Homecell</div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="hero-eyebrow">Invasion 2026 · The Second Wave</div>
+      <h1 class="hero-title">
+        Homecell
+        <span>Resources</span>
+      </h1>
+      <p class="hero-sub">Everything you need for this week's session</p>
+    </header>
+
+    <!-- DIVIDER -->
+    <div class="wave-divider">
+      <div class="wave-divider-line"></div>
+      <div class="wave-divider-dot"></div>
+      <div class="wave-divider-line"></div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards">
+      <!-- 1. HOMECELL NOTES -->
+      <div class="card card-pdf">
+        <div class="card-icon-area">
+          <div class="card-icon card-icon-pdf">
+            <!-- PDF icon -->
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"
+                stroke="#D80C37"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M14 2v6h6M9 13h6M9 17h4"
+                stroke="#D80C37"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <div class="card-icon-text">
+            <div class="card-type">Week's Notes</div>
+            <div class="card-title">Homecell Notes</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="theme-tag">
+            <span class="theme-tag-dot"></span>PDF Document
+          </div>
+          <p class="card-desc">
+            This week's discussion guide — read through before your group meets,
+            or follow along during your session.
+          </p>
+          <div class="btn-group">
+            <a
+              href="./assets/HOME CELL NOTES_17 May 2026.pdf"
+              target="_blank"
+              class="btn btn-red"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              View Notes
+            </a>
+            <a
+              href="./assets/HOME CELL NOTES_17 May 2026.pdf"
+              download
+              class="btn btn-outline-dim"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. SETLIST VIDEO -->
+      <div class="card card-video">
+        <div class="card-icon-area">
+          <div class="card-icon card-icon-video">
+            <!-- Video icon -->
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="2"
+                y="5"
+                width="15"
+                height="14"
+                rx="2"
+                stroke="#A1159C"
+                stroke-width="2"
+              />
+              <path
+                d="M17 9l5-3v12l-5-3V9z"
+                stroke="#A1159C"
+                stroke-width="2"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <div class="card-icon-text">
+            <div class="card-type">Worship</div>
+            <div class="card-title">Setlist Video</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="theme-tag" style="border-color: rgba(161, 21, 156, 0.3)">
+            <span class="theme-tag-dot" style="background: var(--purple)"></span
+            >Video File
+          </div>
+          <p class="card-desc">
+            This week's worship setlist — watch together as a group or use it to
+            practise the songs beforehand.
+          </p>
+          <div class="btn-group">
+            <a
+              href="https://drive.google.com/file/d/1Wvdxc4ikeDqUaWrcZo3MX4L67BKTurYs/view?usp=sharing"
+              target="_blank"
+              class="btn btn-purple"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              Watch Setlist
+            </a>
+            <a
+              href="https://drive.google.com/file/d/1Wvdxc4ikeDqUaWrcZo3MX4L67BKTurYs/view?usp=sharing"
+              download
+              class="btn btn-outline-dim"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              Download
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SERMON ON SPOTIFY -->
+      <div class="card card-spotify">
+        <div class="card-icon-area">
+          <div class="card-icon card-icon-spotify">
+            <!-- Spotify icon -->
+            <svg
+              viewBox="0 0 24 24"
+              fill="#1DB954"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"
+              />
+            </svg>
+          </div>
+          <div class="card-icon-text">
+            <div class="card-type">This Week's Sermon</div>
+            <div class="card-title">Listen on Spotify</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="theme-tag" style="border-color: rgba(29, 185, 84, 0.3)">
+            <span class="theme-tag-dot" style="background: #1db954"></span
+            >Podcast Episode
+          </div>
+          <p class="card-desc">
+            Catch up on the sermon this week's notes are based on — listen
+            before or after your group meets.
+          </p>
+          <div class="btn-group">
+            <a
+              href="https://open.spotify.com/episode/0pN0a1vCMRaN1v9fSolZUL?si=c5c0993af04f494b"
+              target="_blank"
+              rel="noopener"
+              class="btn btn-spotify"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"
+                />
+              </svg>
+              Open in Spotify
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      CRC Worcester · Invasion 2026 · Fuelled by the love of God
+    </div>
+  </body>
+</html>
